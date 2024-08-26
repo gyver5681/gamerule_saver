@@ -1,7 +1,19 @@
 // scripts/main.ts
 import { world } from "@minecraft/server";
 var gyverGameruleName = "gyver:gamerules";
-world.afterEvents.worldInitialize.subscribe((event) => {
+var gyverGameruleLoadedName = "gyver:gamerulesloaded";
+function getGamerulesLoaded() {
+  var returnValue = false;
+  const gameruleLoaded = world.getDynamicProperty(gyverGameruleLoadedName);
+  if (typeof gameruleLoaded === "boolean") {
+    returnValue = gameruleLoaded;
+  }
+  return returnValue;
+}
+function setGamerulesLoaded(value) {
+  world.setDynamicProperty(gyverGameruleLoadedName, value);
+}
+function applySavedGamerules() {
   const cachedRulesJSON = world.getDynamicProperty(gyverGameruleName);
   if (typeof cachedRulesJSON === "string") {
     let cachedRules = JSON.parse(cachedRulesJSON);
@@ -9,19 +21,30 @@ world.afterEvents.worldInitialize.subscribe((event) => {
       world.getDimension("overworld").runCommandAsync(`gamerule ${key} ${value}`);
     });
   }
-  world.afterEvents.gameRuleChange.subscribe((event2) => {
-    let cachedRules;
-    const cachedRulesJSONold = world.getDynamicProperty(gyverGameruleName);
-    if (typeof cachedRulesJSONold === "string") {
-      cachedRules = JSON.parse(cachedRulesJSONold);
-      cachedRules[event2.rule] = event2.value;
-    }
-    const cachedRulesJSON2 = JSON.stringify(cachedRules);
-    if (typeof cachedRulesJSON2 === "string") {
-      world.setDynamicProperty(gyverGameruleName, cachedRulesJSON2);
-    }
-  });
-  console.log("gamerule-saver loaded!");
+}
+world.afterEvents.worldInitialize.subscribe((event) => {
+  setGamerulesLoaded(false);
 });
+var onPlayerJoin = world.afterEvents.playerJoin.subscribe((event) => {
+  const player = world.getPlayers({ name: event.playerName });
+  if (getGamerulesLoaded()) {
+    world.afterEvents.playerJoin.unsubscribe(onPlayerJoin);
+  } else {
+    applySavedGamerules();
+  }
+});
+world.afterEvents.gameRuleChange.subscribe((event) => {
+  let cachedRules;
+  const cachedRulesJSONold = world.getDynamicProperty(gyverGameruleName);
+  if (typeof cachedRulesJSONold === "string") {
+    cachedRules = JSON.parse(cachedRulesJSONold);
+    cachedRules[event.rule] = event.value;
+  }
+  const cachedRulesJSON = JSON.stringify(cachedRules);
+  if (typeof cachedRulesJSON === "string") {
+    world.setDynamicProperty(gyverGameruleName, cachedRulesJSON);
+  }
+});
+console.log("gamerule-saver loaded!");
 
 //# sourceMappingURL=../debug/main.js.map
