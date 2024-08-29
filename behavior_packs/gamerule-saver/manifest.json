@@ -1,11 +1,11 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Gyver's Gamerule Saver v1.0.1",
-    "description": "For Bedrock Realms; This addon will save any gamerule changes made using commands as a dynamic property on the world and reload them when the world reloads",
+    "name": "Gyver's Gamerule Saver v1.0.7",
+    "description": "For Bedrock Realms; This addon will save custom gamerules as a dynamic property on the world and apply them via the gamerule command when the first player logs into an unloaded world.",
     "uuid": "cd87c0e5-9883-45e4-95ef-5b8d89bbb39f",
-    "version": [1, 0, 1],
-    "min_engine_version": [1, 21, 0]
+    "version": [1, 0, 7],
+    "min_engine_version": [1, 21, 21]
   },
   "modules": [
     {
@@ -20,7 +20,11 @@
   "dependencies": [
     {
       "module_name": "@minecraft/server",
-      "version": "1.11.0"
+      "version": "1.13.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "1.2.0"
     }
   ]
 }
